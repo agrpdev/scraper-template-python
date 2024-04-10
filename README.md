@@ -20,23 +20,6 @@ pip install -r requirements.txt
 python scraper.py
 ```
 
-## Implementation Details
-
-- The scraper template uses asyncio to handle asynchronous tasks efficiently.
-- It communicates with an external API for controlling scraper behavior, fetching work items, reporting progress, and handling errors.
-- Scraping logic is implemented using the `playwright` library for browser automation.
-- The template provides a structured approach for handling different types of scraping tasks such as crawling news articles and scraping architect information.
-
 ## Example Usage
 
 Example scraper can be found in scrapers/archiweb.py
-
-## Contributing
-
-Contributions to this scraper template are welcome. You can contribute by suggesting improvements, reporting issues, or submitting pull requests.
-
-## License
-
-This scraper template is provided under the [MIT License]() . You are free to use, modify, and distribute it for any purpose. However, no warranty is provided, and the authors shall not be held liable for any damages arising from its use.---
-
-Feel free to customize this README according to your specific needs and preferences. If you have any questions or need further assistance, don't hesitate to reach out!
