@@ -14,6 +14,8 @@ class WorkItemType(Enum):
 NOOP_TIMEOUT = 5
 WORK_ITEM_PROGRESS_INTERVAL = 60
 
+# SWAGGER https://scraper-scraper-main.kube.agrp.dev/swagger-ui/index.html
+
 BE_URL = 'https://scraper-scraper-main.kube.agrp.dev/rest/v2/control/'
 
 ENDPOINTS = {
