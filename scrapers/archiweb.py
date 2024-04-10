@@ -1,24 +1,26 @@
+import time
+from dotenv import load_dotenv
+import asyncio
+import os
+from ScraperBase import BaseScraper
+from playwright.async_api import async_playwright, Page
 import sys
 sys.path.append("..")
 
-from playwright.async_api import async_playwright, Page
-from ScraperBase import BaseScraper
-import os
-import asyncio
-from dotenv import load_dotenv
-import time
 
 load_dotenv()
 
 API_KEY = os.getenv('API_KEY')
 
+
 class ArchiwebScraper(BaseScraper):
     async def process_crawl_item(self, work_item):
         async with async_playwright() as p:
             print('Crawling')
-            browser = await p.chromium.launch(headless=False) # You can set headless=False to see the browser in action
+            # You can set headless=False to see the browser in action
+            browser = await p.chromium.launch(headless=False)
             page = await browser.new_page()
-            
+
             try:
                 for section in work_item['task']['sections']:
                     if section == 'zpravy':
@@ -43,7 +45,8 @@ class ArchiwebScraper(BaseScraper):
 
             links = await page.eval_on_selector_all('.row.newsList a[href]', '(links) => links.map(link => ({href: link.getAttribute("href"), date: link.querySelector("span.date")?.textContent?.trim() ?? "", title: link.querySelector("span.title")?.textContent?.trim() ?? "", commentCount: parseInt(link.querySelector("span.discuss")?.textContent?.trim() ?? "0")}))')
 
-            new_links = [link for link in links if link['href'] and link['href'] not in seen_hrefs]
+            new_links = [link for link in links if link['href']
+                         and link['href'] not in seen_hrefs]
 
             metadata_list = [{
                 'url': custom_settings['baseDomain'] + link['href'],
@@ -56,7 +59,7 @@ class ArchiwebScraper(BaseScraper):
             seen_hrefs.update(link['href'] for link in new_links)
 
             await self.send_scrape_targets(metadata_list)
-        
+
     async def crawl_architects(self, page: Page):
         # Crawl architekti logic (similar to crawl_news)...
         pass
@@ -108,6 +111,8 @@ class ArchiwebScraper(BaseScraper):
         pass
 
 # Run the scraper instance
+
+
 async def run_instance():
     if not API_KEY:
         print('API key is required')

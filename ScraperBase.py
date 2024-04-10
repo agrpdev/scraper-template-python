@@ -4,12 +4,14 @@ import asyncio
 from enum import Enum
 import typing
 
+
 class WorkItemType(Enum):
     CRAWL = 'CRAWL'
     NOOP = 'NOOP'
     SCRAPE = 'SCRAPE'
     STREAM = 'STREAM'
     HEALTHCHECK = 'HEALTHCHECK'
+
 
 NOOP_TIMEOUT = 5
 WORK_ITEM_PROGRESS_INTERVAL = 60
@@ -34,6 +36,7 @@ ENDPOINTS = {
     'NEXT_WORK_ITEM': 'getNextWorkItem',
 }
 
+
 class BaseScraper:
     def __init__(self, custom_id, api_key):
         self.custom_id = custom_id
@@ -47,12 +50,12 @@ class BaseScraper:
         print('Scraper register:', data)
         if response.status_code != 200:
             return False
-        
+
         self.details = data['scraper']
 
         if not self.details['enabled']:
             print('Scraper is disabled')
-            return  False
+            return False
         if not data['configured']:
             print('Scraper is not configured')
             return False
@@ -79,13 +82,13 @@ class BaseScraper:
         work_item = response.json()
         work_item_type = work_item['workItemType']
         print('Got work item', work_item_type)
-        
+
         if work_item_type == WorkItemType.NOOP.value:
             await asyncio.sleep(NOOP_TIMEOUT)
             return
-        
+
         progress_task = asyncio.create_task(self.work_item_progress(work_item))
-        
+
         if work_item_type == WorkItemType.SCRAPE.value:
             await asyncio.create_task(self.process_scrape_item(work_item))
         elif work_item_type == WorkItemType.CRAWL.value:
@@ -104,7 +107,9 @@ class BaseScraper:
         if path:
             url += '/' + path
         if queryParams:
-            url += '?' + '&'.join([f'{key}={value}' for key, value in queryParams.items()])
+            url += '?' + \
+                '&'.join([f'{key}={value}' for key,
+                         value in queryParams.items()])
 
         headers = {
             'Content-Type': 'application/json',
@@ -129,7 +134,7 @@ class BaseScraper:
         return await self.fetch('RECIEVE_SCRAPER_RECORDS', queryParams={'scraperId': self.details['id']}, method='POST', body=records, errorMessage='Failed to send scrape records')
 
     async def work_item_completed(self, work_item):
-        return await self.fetch('WORK_ITEM_COMPLETED', queryParams={'instanceId': str(self.instance_id), 'workItemId':work_item['id']}, method='POST', errorMessage='Failed to report work item completion')
+        return await self.fetch('WORK_ITEM_COMPLETED', queryParams={'instanceId': str(self.instance_id), 'workItemId': work_item['id']}, method='POST', errorMessage='Failed to report work item completion')
 
     async def work_item_failed(self, work_item, error):
         return await self.fetch('WORK_ITEM_FAILED', queryParams={'instanceId': str(self.instance_id)}, method='POST', body={'workItemId': work_item['id'], 'msgs': [{'msg': str(error), 'stacktrace': error.__traceback__}]}, errorMessage='Failed to report work item failure')
@@ -147,7 +152,8 @@ class BaseScraper:
 
     async def send_file(self, file):
         files = {'file': file}
-        response = requests.post(f'{BE_URL}{ENDPOINTS["RECIEVE_FILE"]}?fileStoreId={self.details["id"]}', files=files, headers={'Authorization': f'Bearer {self.api_key}'})
+        response = requests.post(f'{BE_URL}{ENDPOINTS["RECIEVE_FILE"]}?fileStoreId={self.details["id"]}', files=files, headers={
+                                 'Authorization': f'Bearer {self.api_key}'})
         if response.status_code != 200:
             print('Failed to send file', response.json())
         return response
