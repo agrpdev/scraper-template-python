@@ -1,4 +1,4 @@
-# Python Scraper Template
+# Scraper Template
 
 ## Introduction
 
